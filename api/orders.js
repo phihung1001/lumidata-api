@@ -80,38 +80,38 @@ export default async function handler(req, res) {
       });
     }
 
+        // normalize string (bỏ dấu + lowercase)
     const normalize = (str) =>
       str
-      ?.toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 
-    // Số đơn (OK)
-    const soDon = filtered.filter(
-      (item) => normalize(item.check_result) === "ok"
-    ).length;
+    // init
+    let soDon = 0;
+    let soDonHoanHuy = 0;
+    let doanhSo = 0;
+    let tongTienHuy = 0;
 
-    // Số đơn hoàn hủy
-    const soDonHoanHuy = filtered.filter((item) => {
-      const value = normalize(item.check_result);
-      return value === "huy";
-    }).length;
+    filtered.forEach((item) => {
+      const status = normalize(item.check_result);
+      const money = item.tongtien || 0;
 
-    // Doanh số (OK)
-    const doanhSo = filtered.reduce((sum, item) => {
-      if (normalize(item.check_result) === "ok") {
-        return sum + (item.tongtien || 0);
+      // tổng doanh số (ALL)
+      doanhSo += money;
+
+      if (status === "ok") {
+        soDon++;
       }
-      return sum;
-    }, 0);
 
-    // Doanh số sau hoàn hủy
-    const dsSauHoanHuy = filtered.reduce((sum, item) => {
-      if (normalize(item.check_result) === "huy") {
-        return sum + (item.tongtien || 0);
+      if (status === "huy") {
+        soDonHoanHuy++;
+        tongTienHuy += money;
       }
-      return sum;
-    }, 0);
+    });
+
+    // tổng doanh số sau khi trừ đi các đơn hoàn hủy
+    const dsSauHoanHuy = doanhSo - tongTienHuy;
 
     return res.status(200).json({
       total: filtered.length,
