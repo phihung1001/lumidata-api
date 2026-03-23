@@ -20,7 +20,8 @@ export default async function handler(req, res) {
     if (!response.ok) {
       throw new Error(`Source API error: ${response.status}`);
     }
-    const data = await response.json();
+    const json = await response.json();
+    const data = Array.isArray(json) ? json : (json.data ?? []);
 
     // Extract filter params
     const { nhanvien_maketing, country, order_date, product } = req.query;
