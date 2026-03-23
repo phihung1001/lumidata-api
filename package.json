@@ -1,5 +1,5 @@
 {
-  "name": "lumidata-filter-api",
+  "name": "lumidata-api",
   "version": "1.0.0",
-  "description": "Filter API for LumiData orders"
+  "type": "module"
 }
