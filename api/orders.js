@@ -60,10 +60,8 @@ export default async function handler(req, res) {
   const shiftParam = shift.toLowerCase().trim();
 
   filtered = filtered.filter((item) => {
-    const value = item.shift?.toLowerCase().trim() || "";
-    // normalize: bỏ space thừa sau dấu phẩy
-    value = value.replace(/\s*,\s*/g, ",");
-
+    const rawValue = item.shift?.toLowerCase() || "";
+    const value = rawValue.replace(/\s*,\s*/g, ",");
     // shift = "Hết ca"
     if (shiftParam === "hết ca") {
       return (
