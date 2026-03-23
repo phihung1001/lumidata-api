@@ -97,13 +97,6 @@ export default async function handler(req, res) {
       return value === "huy";
     }).length;
 
-    // normalize string (bỏ dấu + lowercase)
-    const normalize = (str) =>
-      str
-        ?.toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-
     // Doanh số (OK)
     const doanhSo = filtered.reduce((sum, item) => {
       if (normalize(item.check_result) === "ok") {
