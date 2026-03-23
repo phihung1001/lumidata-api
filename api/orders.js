@@ -61,13 +61,15 @@ export default async function handler(req, res) {
 
   filtered = filtered.filter((item) => {
     const value = item.shift?.toLowerCase().trim() || "";
+    // normalize: bỏ space thừa sau dấu phẩy
+    value = value.replace(/\s*,\s*/g, ",");
 
     // shift = "Hết ca"
     if (shiftParam === "hết ca") {
       return (
         value === "hết ca" ||
         value === "giữa ca" ||
-        value === "giữa ca, hết ca"
+        value === "giữa ca,hết ca"
       );
     }
 
