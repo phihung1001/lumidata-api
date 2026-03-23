@@ -57,23 +57,28 @@ export default async function handler(req, res) {
     }
 
     if (shift) {
-      if (shift === "Hết ca") {
-        filtered = filtered.filter((item) => {
-          const value = item.shift?.toLowerCase() || "";
-          return (
-            value.includes("hết ca") ||
-            value.includes("giữa ca")
-          );
-        });
-      }
+  const shiftParam = shift.toLowerCase().trim();
 
-      if (shift === "Giữa ca") {
-        filtered = filtered.filter((item) => {
-          const value = item.shift?.toLowerCase() || "";
-          return value === "giữa ca";
-        });
-      }
+  filtered = filtered.filter((item) => {
+    const value = item.shift?.toLowerCase().trim() || "";
+
+    // shift = "Hết ca"
+    if (shiftParam === "hết ca") {
+      return (
+        value === "hết ca" ||
+        value === "giữa ca" ||
+        value === "giữa ca, hết ca"
+      );
     }
+
+    // shift = "Giữa ca"
+    if (shiftParam === "giữa ca") {
+      return value === "giữa ca";
+    }
+
+    return true;
+  });
+}
 
     return res.status(200).json({
       total: filtered.length,
