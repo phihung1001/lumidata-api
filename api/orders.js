@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const data = Array.isArray(json) ? json : (json.data ?? []);
 
     // Extract filter params
-    const { nhanvien_maketing, country, order_date, product } = req.query;
+    const { nhanvien_maketing, country, order_date, product, shift } = req.query;
 
     // Filter logic
     let filtered = data;
@@ -54,6 +54,25 @@ export default async function handler(req, res) {
       filtered = filtered.filter((item) =>
         item.product?.toLowerCase().includes(product.toLowerCase())
       );
+    }
+
+    if (shift) {
+      if (shift === "Hết ca") {
+        filtered = filtered.filter((item) => {
+          const value = item.shift?.toLowerCase() || "";
+          return (
+            value.includes("hết ca") ||
+            value.includes("giữa ca")
+          );
+        });
+      }
+
+      if (shift === "Giữa ca") {
+        filtered = filtered.filter((item) => {
+          const value = item.shift?.toLowerCase() || "";
+          return value === "giữa ca";
+        });
+      }
     }
 
     return res.status(200).json({
