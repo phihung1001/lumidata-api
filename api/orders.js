@@ -77,7 +77,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       total: filtered.length,
-      filters: { nhanvien_maketing, country, order_date, product },
+      filters: { nhanvien_maketing, country, order_date, product, shift },
       data: filtered,
     });
   } catch (err) {
