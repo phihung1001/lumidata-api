@@ -57,31 +57,75 @@ export default async function handler(req, res) {
     }
 
     if (shift) {
-  const shiftParam = shift.toLowerCase().trim();
+      const shiftParam = shift.toLowerCase().trim();
 
-  filtered = filtered.filter((item) => {
-    const rawValue = item.shift?.toLowerCase() || "";
-    const value = rawValue.replace(/\s*,\s*/g, ",");
-    // shift = "Hết ca"
-    if (shiftParam === "hết ca") {
-      return (
-        value === "hết ca" ||
-        value === "giữa ca" ||
-        value === "giữa ca,hết ca"
-      );
+      filtered = filtered.filter((item) => {
+        const rawValue = item.shift?.toLowerCase() || "";
+        const value = rawValue.replace(/\s*,\s*/g, ",");
+        // shift = "Hết ca"
+        if (shiftParam === "hết ca") {
+          return (
+            value === "hết ca" ||
+            value === "giữa ca" ||
+            value === "giữa ca,hết ca"
+          );
+        }
+
+        // shift = "Giữa ca"
+        if (shiftParam === "giữa ca") {
+          return value === "giữa ca";
+        }
+
+        return true;
+      });
     }
 
-    // shift = "Giữa ca"
-    if (shiftParam === "giữa ca") {
-      return value === "giữa ca";
-    }
+    const normalize = (str) =>
+      str
+      ?.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-    return true;
-  });
-}
+    // Số đơn (OK)
+    const soDon = filtered.filter(
+      (item) => normalize(item.check_result) === "ok"
+    ).length;
+
+    // Số đơn hoàn hủy
+    const soDonHoanHuy = filtered.filter((item) => {
+      const value = normalize(item.check_result);
+      return value === "huy";
+    }).length;
+
+    // normalize string (bỏ dấu + lowercase)
+    const normalize = (str) =>
+      str
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    // Doanh số (OK)
+    const doanhSo = filtered.reduce((sum, item) => {
+      if (normalize(item.check_result) === "ok") {
+        return sum + (item.tongtien || 0);
+      }
+      return sum;
+    }, 0);
+
+    // Doanh số sau hoàn hủy
+    const dsSauHoanHuy = filtered.reduce((sum, item) => {
+      if (normalize(item.check_result) === "huy") {
+        return sum + (item.tongtien || 0);
+      }
+      return sum;
+    }, 0);
 
     return res.status(200).json({
       total: filtered.length,
+      soDon,
+      soDonHoanHuy,
+      doanhSo,
+      dsSauHoanHuy,
       filters: { nhanvien_maketing, country, order_date, product, shift },
       data: filtered,
     });
